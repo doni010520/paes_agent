@@ -1,0 +1,237 @@
+{
+  "name": "cadastrar_contato",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "nome"
+            },
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "email"
+            },
+            {
+              "name": "status"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -280,
+        0
+      ],
+      "id": "9288b6ad-1edf-491f-862c-125868b7a1b7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "paes_contacts",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "telefone",
+              "condition": "eq",
+              "keyValue": "={{ $json.telefoneFormatado }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ],
+      "id": "66d4f192-8f4a-4ab8-808e-5b6577ddb522",
+      "name": "Get many rows",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "lXsGPwdUlN7FGaIB",
+          "name": "PAES | Supabase "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2c18d3a4-49bc-472f-b667-6b9f4055d6a8",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        0
+      ],
+      "id": "e3c4ec92-0a46-4e7c-84c8-4574f75c0092",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        620,
+        120
+      ],
+      "id": "8a16d076-ffb1-4be8-a21d-ecea13ab0a5d",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "tableId": "paes_contacts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome_completo",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.nome }}"
+            },
+            {
+              "fieldId": "telefone",
+              "fieldValue": "={{$('Code').item.json.telefoneFormatado}}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.email }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        620,
+        -120
+      ],
+      "id": "0f00d277-e5de-4849-a99b-5178453f3c89",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "lXsGPwdUlN7FGaIB",
+          "name": "PAES | Supabase "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const numeroInformado = $input.first().json.telefone; // Entrada: telefone\n\n// Remove tudo que não for número\nlet numeroLimpo = numeroInformado.replace(/\\D/g, '');\n\n// Remove o +55 se já tiver\nif (numeroLimpo.startsWith('55')) {\n  numeroLimpo = numeroLimpo.slice(2);\n}\n\n// Pega DDD e número\nconst ddd = numeroLimpo.substring(0, 2);\nconst numero = numeroLimpo.substring(2);\n\n// Formata no padrão internacional\nconst numeroFormatado = `55${ddd}${numero}`;\n\n// Retorna no output\nreturn [{ json: { telefoneFormatado: numeroFormatado } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        0
+      ],
+      "id": "23bf0451-04a5-4d0d-9035-be028c09eeff",
+      "name": "Code"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "nome": "Adonias Santos",
+          "telefone": "+557193061031",
+          "email": "adoni_santos@outlook.com",
+          "status": "membro"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "229b9caf-216f-415e-9efb-5ea06584f199",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e9b8db4e526b46b18201c0d5058eaa029def7cad8966076a0b9e800d10bd7ce"
+  },
+  "id": "xEgqV510zHUaqWAY",
+  "tags": []
+}
