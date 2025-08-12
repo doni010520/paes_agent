@@ -1,0 +1,252 @@
+{
+  "name": "notificar_time_interno",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "paescatedral@gmail.com",
+        "subject": "=PRIORIDADE: {{ $('Edit Fields').item.json.prioridade }} | {{ $('Edit Fields').item.json.situacao }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        420,
+        -20
+      ],
+      "id": "b2f31e70-2e2e-46b5-bdb5-4ab145afa42d",
+      "name": "Send a message",
+      "webhookId": "b7547e88-958b-48f4-891d-daf344b5eee5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ykwYPjw7xI53eeux",
+          "name": "PAES Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ed545114-8887-47af-9d03-df6d9a248c1e",
+              "name": "situacao",
+              "value": "={{ $json.tipo_situacao }}",
+              "type": "string"
+            },
+            {
+              "id": "6547964a-3b49-47c3-bc36-aaf6de658445",
+              "name": "prioridade",
+              "value": "={{ $json.prioridade }}",
+              "type": "string"
+            },
+            {
+              "id": "93af8f2f-b921-4a38-b990-c7af164bcbd0",
+              "name": "equipe_responsavel",
+              "value": "={{ $json.equipe_responsavel }}",
+              "type": "string"
+            },
+            {
+              "id": "d6262785-cbb2-469e-87f5-b25647ec2027",
+              "name": "detalhes",
+              "value": "={{ $json.detalhes }}",
+              "type": "string"
+            },
+            {
+              "id": "1ceabfbf-7dbb-47ce-8c43-486362ca776d",
+              "name": "nome",
+              "value": "={{ $json.nome }}",
+              "type": "string"
+            },
+            {
+              "id": "2bf8ac3c-1c91-4c2d-92cc-0b279867aa75",
+              "name": "telefone",
+              "value": "={{ $json.telefone }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        -20
+      ],
+      "id": "e0155751-8b3b-4e2e-bb0d-4530e2331521",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "tipo_situacao"
+            },
+            {
+              "name": "prioridade"
+            },
+            {
+              "name": "equipe_responsavel"
+            },
+            {
+              "name": "nome"
+            },
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "detalhes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -380,
+        -20
+      ],
+      "id": "cb56d260-62cc-464b-a550-9a770a25ca9c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Essa é a minha situação: {{ $json.situacao }}\nEssa é a prioridade da minha situação: {{ $json.prioridade }}\nEssa é a equipe responsável por resolver minha situação: {{ $json.equipe_responsavel }}\nEsses são os detalhes da minha situação: {{ $json.detalhes }}\nMeu nome: {{ $json.nome }}\nMeu telefone: {{ $json.telefone }}"
+            },
+            {
+              "content": "=Hoje é {{ $now.setZone(\"America/Sao_Paulo\").format('FFFF') }}\n\nVocê é a LidIA responsável por enviar emails para o time interno notificando situações com delicadeza e riqueza de detalhes. \n\nCaso precise usar alguma data, se basei na data de hoje. \n\nSempre assine os emails. ",
+              "role": "assistant"
+            },
+            {
+              "content": "=Utilizando as informações dadas pelo user, você cria um email informando qual é a situação, o nome, o telefone do usuário e todos os detalhes que você tiver.\n\nSempre assine os emails.",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        40,
+        -20
+      ],
+      "id": "c4f9a4e2-b043-48af-aaa0-f0e3540aac01",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YZLFhtgQAfMRtcSG",
+          "name": "Agente_adauto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ca6619a-a01c-4cc9-84c7-6a6131d28f9b",
+              "name": "Sucesso ",
+              "value": "Sucesso",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        -20
+      ],
+      "id": "bf127aea-4964-4cae-8f08-aaa8ef77b1c3",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "tipo_situacao": "visita_guiada",
+          "prioridade": "ALTA",
+          "equipe_responsavel": "Recepção e Integração",
+          "nome": "Moshe",
+          "telefone": "558187593444",
+          "detalhes": "domingo_preferido: esse fim de semana, numero_acompanhantes: 1, primeira_visita: true"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5bc6130e-02ba-4d4f-8cf4-622438a3c583",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e9b8db4e526b46b18201c0d5058eaa029def7cad8966076a0b9e800d10bd7ce"
+  },
+  "id": "kvBFWbzubIRlhLG1",
+  "tags": []
+}
